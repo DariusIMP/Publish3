@@ -163,7 +163,7 @@ The login is achieved using Privy.
 ## Links:
 
 * https://github.com/DariusIMP/publish3-backend
-* https://github.com/DariusIMP/publish3-frontend
+* https://github.com/DariusIMP/publish3-front
 
 ## Front end
 

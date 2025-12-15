@@ -1,0 +1,6 @@
+[submodule "publish3-backend"]
+	path = publish3-backend
+	url = https://github.com/DariusIMP/publish3-backend
+[submodule "publish3-front"]
+	path = publish3-front
+	url = https://github.com/DariusIMP/publish3-front

@@ -4,3 +4,6 @@
 [submodule "publish3-front"]
 	path = publish3-front
 	url = https://github.com/DariusIMP/publish3-front
+[submodule "publish3-contracts"]
+	path = publish3-contracts
+	url = https://github.com/DariusIMP/publish3-contracts

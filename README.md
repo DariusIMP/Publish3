@@ -1,218 +1,259 @@
+![logo](publish3.svg)
 
 
-![logo](logo.png)
+**Publish3** is a **Movement-powered platform** that enables users to publish, discover, and purchase academic documents in a fair, and transparent way, with on chain guarantees.
 
-Publish3 is an x402-powered decentralized publishing and micro-royalty protocol that lets researchers mint their papers as on-chain assets and receive instant payments for both downloads and citations.
+Authors specify the price and are rewarded directly for their work, readers gain permanent access to purchased knowledge, and the blockchain guarantees ownership, payments, and attribution—without relying on traditional publishing intermediaries.
 
-Using Movement's x402 payment rails, every purchase or citation of a paper triggers automated, real-time micropayments to the authors and to the researchers whose work was cited—creating the first incentive-aligned economic system for scientific knowledge.
+Links
+---
+https://publish3-front.vercel.app/
 
+---
 
-# Motivation
+## Table of Contents
 
-Publishing in academia is generally hard and little rewarding for the scientists and researchers doing the actual job. On the other side, for readers, students, and other fellow researchers around the globe, it's in many times cost prohibitive to access the research publications and getting access to that knowledge. Publications are generally locked behind a huge paywall setup by publication companies that make a business from research.
+* [Overview](#overview)
+* [Key Features](#key-features)
+* [Business Model](#business-model)
+* [Technical Architecture](#technical-architecture)
 
-Pages like SciHub aim to make more accessible the knowledge to the general people by sharing papers without the consent of those publisher companies that have the commercial rights over them. Although SciHub is widely used nowadays, the site is regularly targeted by lawsuits and taken down. It is an activist site that does not solve the underlying problem, it is more of a palliative for a flawed system. Moreover, it aims to tackle the problem of access to the knowledge, but it doesn't help rewarding the scientists and researchers.
+  * [Overall Architecture](#overall-architecture)
+  * [Authentication](#authentication)
+  * [Privy Embedded Wallets](#privy-embedded-wallets)
+  * [Smart Contract Design](#smart-contract-design)
+  * [Transactions Flow](#transactions-flow)
+* [Technical Debt & Future Work](#technical-debt--future-work)
 
-The idea behind Publish3 is to setup a publication system in which access to the research is cheaper, while directly rewarding the authors and authors of cited publications.
+---
 
-# How Publish3 Works
+## Overview
 
-Publish3 is a decentralized academic publishing protocol designed to fairly compensate researchers for both their work and their influence, while keeping access to scientific knowledge simple, transparent, and incentive-aligned. A small fee would be charged for each transaction in order to cover the costs of maintenance and development of the platform.
-
-At its core, Publish3 combines **on-chain payments and ownership** with **off-chain storage and access control**, using the right tool for each job.
-
-
-## 1. Identity and Access
-
-Publish3 uses **Privy** as its identity and wallet abstraction layer.
-
-Privy enables:
-- Email and social login for Web2 users
-- Automatic creation and management of a non-custodial Movement wallet
-- A unified identity usable both on-chain and off-chain
-
-This allows users to interact with blockchain-powered features without directly handling private keys, while still retaining full ownership of their assets.
-
-
-## 2. Publishing a Paper
-
-When a researcher publishes a paper:
-
-1. The researcher signs in using Privy
-2. The paper (PDF or similar) is uploaded through the web interface
-3. The backend:
-   - Encrypts the file
-   - Stores it in an S3-compatible object store
-   - Computes a cryptographic hash of the content
-4. The researcher defines:
-   - The price of the paper
-   - The list of authors
-   - A citation royalty percentage
-   - Optional references to other papers already published in the system
-
-A smart contract on **Movement** is then called to mint the paper as an on-chain asset.
-
-Only metadata is stored on-chain, including:
-- Author addresses
-- Pricing and royalty rules
-- Citation references
-- Content hash
-
-The paper itself is never stored on-chain.
-
-Once minted, the paper becomes discoverable in the Publish3 marketplace.
-
-## 3. Discovering Research
-
-Anyone can browse published papers without payment.
+Publish3 acts as both a **host** and an **intermediary** between authors and readers.
 
 Users can:
-- Search by topic, author, or keywords
-- View abstracts and previews
-- Inspect authorship and citation relationships
-- See pricing and royalty rules transparently on-chain
 
-This allows open discovery while keeping full content protected.
+* Browse published academic papers, documents, and research texts
+* Read abstracts before purchasing
+* Purchase documents and retain **permanent access**
+* Trust the blockchain as the **source of truth** for ownership and payments
 
-## 4. Purchasing a Paper
+Each purchase is recorded on-chain and linked to the user’s **Privy embedded wallet**, ensuring verifiable ownership. The smart contract guarantees that payments are distributed **directly to the authors** of the publication.
 
-When a user purchases a paper:
+### Publishing Content
 
-1. The frontend initiates a payment using **x402 payment rails** on Movement
-2. The payment is sent directly to the publishing smart contract
-3. The smart contract:
-   - Verifies the payment
-   - Instantly splits the funds according to predefined rules:
-     - Primary authors receive the main share
-     - Authors of cited papers receive micro-royalties
-4. Settlement occurs immediately and transparently on-chain
+Becoming an author is simple:
 
-This ensures that:
-- Authors are paid instantly
-- Citation rewards are automatic
-- No intermediaries take a cut
+1. Register as an author
+2. Upload your document
+3. Define:
 
-## 5. Granting Access to the Paper
+   * Title and metadata
+   * Price (in MOVE)
+   * Author list (supporting multiple authors)
+4. Publish
 
-After a successful purchase:
+Once submitted, the publication becomes instantly available for users to discover and purchase.
 
-1. The smart contract emits an on-chain purchase event
-2. The backend listens for this event and verifies:
-   - The buyer’s wallet address
-   - The purchased paper ID
-3. The backend generates a **time-limited signed URL** to the encrypted paper stored in S3
-4. The signed URL is returned to the authenticated user
+---
 
-Access to the paper is tied to **on-chain ownership**, not to the URL itself.
+## Key Features
 
-If a signed URL expires, a new one can be generated at any time after verifying ownership on-chain.
+* Browse academic publications
+* Publish research and documents
+* Embedded wallets (no external setup required)
+* Authors set their own prices
+* Direct revenue distribution to authors
+* Blockchain-backed ownership and payments
 
-## 6. Architecture Rationale
+---
 
-Publish3 intentionally separates responsibilities:
+## Business Model
 
-### On-chain (Movement)
-- Ownership and authorship
-- Pricing and royalty logic
-- Payment settlement via x402
-- Citation-based reward distribution
+Publish3 aims to align the interests of **readers and authors**:
 
-### Off-chain (Backend + S3)
-- File storage and encryption
-- Search and indexing
-- Access control via signed URLs
-- Performance and user experience
+* Readers gain access to high-quality academic content at fair prices
+* Authors receive the majority of the revenue generated by their work
+* No traditional publishing intermediaries
 
-This hybrid architecture combines blockchain trust guarantees with Web2 scalability and usability.
+### Platform Fee
 
-## 7. Why x402 Is Essential
+* Publish3 takes **10%** of each purchase
+* **90% goes directly to the authors**
+* The platform fee covers:
 
-x402 enables:
-- Instant micropayments
-- Automated revenue splitting
-- Machine-to-machine payments
+  * Development
+  * Infrastructure
+  * Storage
+  * Maintenance
 
-This makes it possible for:
-- Researchers to earn per download
-- Citations to become economically meaningful
-- AI agents or institutions to programmatically purchase research
+> Note: The 10% fee is currently an arbitrary value. A future market analysis is required to properly balance sustainability and competitiveness.
 
-Publish3 is not just a paywall — it is a programmable economic layer for knowledge.
+---
 
-## 8. Outcome
+## Technical Architecture
 
-With Publish3:
-- Researchers are paid immediately for their work
-- Citations become a direct economic signal
-- Readers know exactly where their money goes
-- Scientific knowledge is distributed fairly and transparently
+### Overall Architecture
 
-Publish3 replaces opaque publishing monopolies with open, incentive-aligned infrastructure built on Movement.
+* **Frontend**
+
+  * React + Node.js
+  * Material UI component library (licensed)
+
+* **Backend**
+
+  * Rust
+  * Actix Web framework
+  * MySQL database
+  * S3-compatible storage for documents
+
+* **Authentication**
+
+  * Privy for user identity and wallet management
+  * Token verification performed locally in the backend
+
+* **Blockchain**
+
+  * Smart contract deployed on **Movement M1 Testnet**
+
+Although wallets are Privy-embedded, most wallet operations are coordinated by the backend. Privy is used primarily for **secure transaction signing**.
+
+---
+
+## Authentication
+
+Authentication is handled via **Privy**, following their recommended integration flow.
+
+### Supported Login Methods
+
+* Google
+* GitHub
+* Email
+* External wallets
+
+On the frontend, a **Privy Provider** wraps the React application.
+
+On the backend:
+
+* An **Actix Web middleware** intercepts incoming requests
+* Tokens are validated **locally** using Privy’s public key
+* No direct API calls to Privy are required for verification
+
+---
+
+## Privy Embedded Wallets
+
+* Wallets are **automatically generated** for authenticated users
+* Wallet creation is triggered from the backend via Privy’s API
+* Each wallet is associated with a **signature authority**
+* This authority is used to request Privy to sign raw transactions
+
+### Architectural Choice
+
+Privy currently provides **Tier-2 support for Movement**, meaning:
+
+* Wallet management cannot be fully handled client-side
+* Transaction preparation and signing orchestration is handled by the backend
+* Privy remains responsible for cryptographic signing only
+
+---
+
+## Smart Contract Design
+
+The backend server acts as the **P3Authority**.
+
+### Initialization Flow
+
+1. The smart contract is deployed
+2. The server immediately calls `initialize`
+3. The server becomes the **publication authority**
+
+### Publishing Flow
+
+Publishing is secured using capability-based access control, ensuring that only authorized users can publish specific documents, while keeping all final actions user-signed and on-chain.
+
+When a user publishes a document:
+
+1. The server grants the user a **temporary capability**
+2. The user mints the capability
+3. The user calls the `publish` function
+
+This design was made with the following ideas in mind:
+
+* Only authorized users can publish
+* Capabilities are single-use and document-specific
+* Server cannot publish on behalf of users
+* Users keep full control over transactions
+* Prevents external or malicious contract calls
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant FE as Frontend
+    participant BE as Backend (P3Authority)
+    participant P as Privy
+    participant BC as Movement Blockchain
+
+    U->>FE: Request to publish document
+    FE->>BE: Publish request (metadata + document hash)
+
+    BE->>BE: Create publication capability
+    Note right of BE: Capability signed with\nP3Authority private key\nBound to document hash
+
+    BE->>P: Request signature for mint-capability tx
+    P-->>BE: Signed raw transaction
+
+    BE->>BC: Submit mint-capability transaction
+    BC-->>BE: Capability minted & transferred to user
+
+    BE->>P: Request signature for publish tx
+    P-->>BE: Signed raw transaction
+
+    BE->>BC: Submit publish transaction
+    BC-->>U: Publication finalized on-chain
+```
+
+The backend can request Privy to sign a transaction on behalf of the client's wallet because each wallet is associated to a signature authority in Privy, whose private key is configured in the backend. So the wallets are not fully on the hands of the users, but this is a limitation due to the Tier 2 support that Privy provides for Movement. The only way to sign transactions using these wallets is this way through the backend. When tier 1 support is provided, we would migrate the wallet's ownership directly to the client application.
+
+### Purchasing flow
+
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant FE as Frontend
+    participant BE as Backend (P3Authority)
+    participant P as Privy
+    participant BC as Movement Blockchain
+    participant A as Authors
+
+    U->>FE: Request to purchase document
+    FE->>BE: Purchase request (document ID)
+
+    BE->>BE: Verify user authorization & document availability
+
+    BE->>P: Request signature for purchase tx
+    P-->>BE: Signed raw transaction
+
+    BE->>BC: Submit purchase transaction
+    BC-->>BE: Purchase confirmed on-chain
+    BC-->>U: Purchase confirmed on-chain
+    BC-->>A: Royalties distributed to authors
+    BE-->>U: Access is granted to the document
+```
 
 
 ---
 
-# Architecture
+## Transactions Flow
 
-Publish3 is a web application based on React with a backend developed in Rust with Actix-Web, connected to an SQL database and an S3 database as well.
+1. Transactions are **simulated first**
+2. Estimated cost is shown to the user
+3. The user approves or rejects the transaction
+4. Upon approval:
 
-The login is achieved using Privy.
+   * A raw transaction is generated
+   * Privy signs it on behalf of the user
+   * The transaction is submitted to the blockchain
 
-# How to build
-
-## Links:
-
-* https://github.com/DariusIMP/publish3-backend
-* https://github.com/DariusIMP/publish3-front
-
-## Front end
-
-Requirements:
-
-* node-js
-* yarn
-
-Download the `publish3-front` repository and run
-
-```
-$ yarn install
-```
-
-followed by
-
-```
-$ yarn dev
-```
-
-Then the site should be up at `http://localhost:3033`.
-
-## Backend
-
-Requirements:
-
-* Rust
-* Docker
-
-Follow the instructions from the official Rust page in order to install the language at https://rust-lang.org/tools/install/ .
-Same for Docker: https://docs.docker.com/engine/install/
-
-First, set up docker:
-
-```
-docker compose up
-```
-
-This is going to start the SQL database as well as an instance of MinIO (an S3 storage implementation running locally). Also a Redis instance is launched for caching storage data.
-
-Then build the server with
-
-```
-cargo build --release
-```
-
-and run it with
-
-```
-cargo run --release
-```
-
+Neither purchases nor publications require server signatures—only user authorization. The server only issues the required capabilities.

@@ -26,8 +26,10 @@ https://publish3-front.vercel.app/
 * [Technical Debt & Future Work](#technical-debt--future-work)
 
 ---
-
 ## Overview
+
+![dashboard](dashboard.png)
+
 
 Publish3 acts as both a **host** and an **intermediary** between authors and readers.
 
@@ -41,6 +43,8 @@ Users can:
 Each purchase is recorded on-chain and linked to the user’s **Privy embedded wallet**, ensuring verifiable ownership. The smart contract guarantees that payments are distributed **directly to the authors** of the publication.
 
 ### Publishing Content
+
+![publishing](publishing.png)
 
 Becoming an author is simple:
 

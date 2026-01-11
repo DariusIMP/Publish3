@@ -7,7 +7,9 @@ Authors specify the price and are rewarded directly for their work, readers gain
 
 Links
 ---
-https://publish3-front.vercel.app/
+Demo: https://publish3-front.vercel.app/
+
+Demo video: https://www.youtube.com/watch?v=VNNVStkRLE4
 
 ---
 
